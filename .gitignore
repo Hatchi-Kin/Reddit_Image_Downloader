@@ -1,6 +1,12 @@
+__pycache__/
 **/__pycache__/
+downloads/
 **/downloads/
+.venv/
 **/.venv/
+.env
 **/.env
-**/.env.reddit
+.env.*
+**/.env.*
+.vscode/
 **/.vscode/

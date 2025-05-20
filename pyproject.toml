@@ -1,0 +1,12 @@
+[project]
+name = "reddit-image-downloader"
+version = "0.1.0"
+description = "Download images from Reddit users or subreddits."
+authors = [{ name = "Your Name" }]
+dependencies = [
+    "praw",
+    "python-dotenv"
+]
+
+[project.scripts]
+reddit-image-downloader = "cli:main"
