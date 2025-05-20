@@ -1,8 +1,10 @@
-import praw
 import os
+import hashlib
 import urllib.request
 from urllib.parse import urlparse
 from urllib.error import URLError, HTTPError
+
+import praw
 
 
 class RedditImageDownloader:
@@ -23,6 +25,7 @@ class RedditImageDownloader:
             password=password,
         )
         self.base_download_dir = base_download_dir
+        self.image_hashes = set()
 
     def is_image_url(self, url):
         """Check if a URL is an image (excluding GIFs)"""
@@ -37,6 +40,20 @@ class RedditImageDownloader:
 
         return any(url.endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".bmp"])
 
+    def _get_image_hash(self, url):
+        hasher = hashlib.sha256()
+        try:
+            with urllib.request.urlopen(url) as response:
+                while True:
+                    chunk = response.read(8192)
+                    if not chunk:
+                        break
+                    hasher.update(chunk)
+            return hasher.hexdigest()
+        except Exception as e:
+            print(f"Error hashing {url}: {e}")
+            return None
+
     def download_user_images(self, username, limit=None, download_dir=None):
         """Download all images from a user's posts (excluding GIFs)"""
         if download_dir is None:
@@ -48,13 +65,28 @@ class RedditImageDownloader:
 
         for submission in submissions:
             if self.is_image_url(submission.url):
+                img_hash = self._get_image_hash(submission.url)
+                if not img_hash:
+                    continue
+                if img_hash in self.image_hashes:
+                    continue
                 try:
                     url_parts = urlparse(submission.url)
                     file_ext = os.path.splitext(url_parts.path)[1] or ".jpg"
                     filename = f"{submission.id}{file_ext}"
                     filepath = os.path.join(download_dir, filename)
 
-                    urllib.request.urlretrieve(submission.url, filepath)
+                    # Download and save image
+                    with urllib.request.urlopen(submission.url) as response, open(
+                        filepath, "wb"
+                    ) as out_file:
+                        while True:
+                            chunk = response.read(8192)
+                            if not chunk:
+                                break
+                            out_file.write(chunk)
+
+                    self.image_hashes.add(img_hash)
                     downloaded_count += 1
                     print(f"Downloaded: {submission.title[:50]}... ({filename})")
 
@@ -74,13 +106,28 @@ class RedditImageDownloader:
 
         for submission in submissions:
             if self.is_image_url(submission.url):
+                img_hash = self._get_image_hash(submission.url)
+                if not img_hash:
+                    continue
+                if img_hash in self.image_hashes:
+                    continue
                 try:
                     url_parts = urlparse(submission.url)
                     file_ext = os.path.splitext(url_parts.path)[1] or ".jpg"
                     filename = f"{submission.id}{file_ext}"
                     filepath = os.path.join(download_dir, filename)
 
-                    urllib.request.urlretrieve(submission.url, filepath)
+                    # Download and save image
+                    with urllib.request.urlopen(submission.url) as response, open(
+                        filepath, "wb"
+                    ) as out_file:
+                        while True:
+                            chunk = response.read(8192)
+                            if not chunk:
+                                break
+                            out_file.write(chunk)
+
+                    self.image_hashes.add(img_hash)
                     downloaded_count += 1
                     print(f"Downloaded: {submission.title[:50]}... ({filename})")
 
