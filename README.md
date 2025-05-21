@@ -10,8 +10,16 @@ A simple Python tool to download images (excluding GIFs and videos) from a Reddi
 
 ## Setup
 
-**Note:** Requires a Reddit account and API credentials.
+**Note:** Requires a Reddit account and API credentials. 
+    
+#### Some links: 
+- [apps](https://www.reddit.com/prefs/apps)
+    
+- [old apps](https://old.reddit.com/prefs/apps)
 
+- [Reddit API](https://www.reddit.com/dev/api/)
+
+#
 1. **Clone the repository** and install dependencies (with [uv](https://github.com/astral-sh/uv) or [Poetry](https://python-poetry.org/)):
 
     ```bash

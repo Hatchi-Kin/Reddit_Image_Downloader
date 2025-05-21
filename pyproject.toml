@@ -2,7 +2,7 @@
 name = "reddit-image-downloader"
 version = "0.1.0"
 description = "Download images from Reddit users or subreddits."
-authors = [{ name = "Your Name" }]
+authors = [{ name = "Hatchi-Kin" }]
 dependencies = [
     "praw",
     "python-dotenv"

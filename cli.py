@@ -19,12 +19,18 @@ def main():
     args = parser.parse_args()
 
     config = dotenv_values(".env.reddit")
+    required_vars = ["CLIENT_ID", "CLIENT_SECRET", "USER_AGENT", "USERNAME", "PASSWORD"]
+    missing_vars = [var for var in required_vars if not config.get(var)]
+    if missing_vars:
+        print(f"Error: Missing required environment variables: {', '.join(missing_vars)}")
+        return
+
     downloader = RedditImageDownloader(
-        client_id=config["CLIENT_ID"],
-        client_secret=config["CLIENT_SECRET"],
-        user_agent=config["USER_AGENT"],
-        username=config["USERNAME"],
-        password=config["PASSWORD"],
+        client_id=str(config["CLIENT_ID"]),
+        client_secret=str(config["CLIENT_SECRET"]),
+        user_agent=str(config["USER_AGENT"]),
+        username=str(config["USERNAME"]),
+        password=str(config["PASSWORD"]),
     )
 
     if args.user:
