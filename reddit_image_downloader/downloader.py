@@ -22,6 +22,7 @@ class RedditImageDownloader:
         username: str,
         password: str,
         base_download_dir: str = "downloads",
+        min_size: int = 20000,  # 20KB default
     ) -> None:
         self.reddit: praw.Reddit = praw.Reddit(
             client_id=client_id,
@@ -32,6 +33,7 @@ class RedditImageDownloader:
         )
         self.base_download_dir: str = base_download_dir
         self.image_hashes: Set[str] = set()
+        self.min_size = min_size
 
     def _is_image_url(self, url: str) -> bool:
         """Check if a URL is an image (excluding GIFs)"""
@@ -62,11 +64,16 @@ class RedditImageDownloader:
         self, submission: praw.reddit.Submission, download_dir: str
     ) -> bool:
         """Download a single image from a submission"""
-        img_hash = self._get_image_hash(submission.url)
-        if not img_hash or img_hash in self.image_hashes:
-            return False
-
         try:
+            with urllib.request.urlopen(submission.url) as response:
+                file_size = int(response.headers.get("content-length", 0))
+                if file_size < self.min_size:
+                    return False
+
+            img_hash = self._get_image_hash(submission.url)
+            if not img_hash or img_hash in self.image_hashes:
+                return False
+
             url_parts = cast(ParseResult, urlparse(submission.url))
             file_ext: str = os.path.splitext(url_parts.path)[1] or ".jpg"
             filename = f"{submission.id}{file_ext}"
